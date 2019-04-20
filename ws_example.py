@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import time
 
 from simple_ws import WebSocket
