@@ -73,13 +73,17 @@ class RequestParser:
         header += "Connection: Upgrade\r\n"
         if compression:
             header += "Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits=8\r\n"
-        header += "Sec-WebSocket-Accept: " + key.decode("utf-8") + "\r\n\r\n"
+        header += "Sec-WebSocket-Accept: " + key.decode("utf-8") + "\r\n"
+        header += "Handshake-Msg: OK" + "\r\n"
+        header += "Handshake-Status: 0" + "\r\n"
+        header += "Sec-Websocket-Protocol: pbbp2" + "\r\n"
+        header += "Handshake-Options: ping-interval=480;" + "\r\n"
+        header += "\r\n"
         return header
 
 
 class Decompressor:
     def __init__(self):
-
         self.decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
 
     def decompress(self, message):
@@ -113,7 +117,8 @@ class WebSocketFrame:
     def has_mask(self):
         return self.mask is not None
 
-    def __init__(self, opcode=TEXT, payload="", mask=None, raw_data=None, max_frame_size=8192, compression=False,
+    def __init__(self, opcode=TEXT, payload="", mask=None, raw_data=None, max_frame_size=8192,
+                 compression=False,
                  ignore_mask=False):
 
         self.opcode = opcode
@@ -256,7 +261,6 @@ class FrameReader:
         self.messages = []
         self.decompresser = Decompressor()
 
-
     def read_message(self, data, compression=False):
         message_rest = bytearray()
         self.recieved_data.extend(data)
@@ -296,7 +300,8 @@ class FrameReader:
 
 
 class WebSocket:
-    def __init__(self, host, port, ping=True, ping_interval=5, buffer_size=8192, max_frame_size=8192,
+    def __init__(self, host, port, ping=True, ping_interval=5, buffer_size=8192,
+                 max_frame_size=8192,
                  max_connections=10, compression=True):
         self.clients = []
         self.host = host
@@ -308,7 +313,8 @@ class WebSocket:
         self.max_frame_size = max_frame_size
         self.compression = compression
 
-        self.server = asyncio.start_server(client_connected_cb=self.__client_connected, host=host, port=port,
+        self.server = asyncio.start_server(client_connected_cb=self.__client_connected, host=host,
+                                           port=port,
                                            loop=loop)
         loop.run_until_complete(self.server)
         loop.run_forever()
@@ -351,7 +357,8 @@ class Client:
     OPEN = 1
     CLOSED = 2
 
-    def __init__(self, server: WebSocket, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, buffer_size: int):
+    def __init__(self, server: WebSocket, reader: asyncio.StreamReader,
+                 writer: asyncio.StreamWriter, buffer_size: int):
         self.server = server
         self.reader = reader
         self.writer = writer
@@ -380,7 +387,9 @@ class Client:
 
     def write_message(self, msg, binary=False):
         opcode = WebSocketFrame.BINARY if binary else WebSocketFrame.TEXT
-        frame = WebSocketFrame(opcode=opcode, payload=msg, max_frame_size=self.server.max_frame_size, compression=self.server.compression)
+        frame = WebSocketFrame(opcode=opcode, payload=msg,
+                               max_frame_size=self.server.max_frame_size,
+                               compression=self.server.compression)
         self.__send_frames(frame.construct())
 
     def is_open(self):
@@ -390,7 +399,12 @@ class Client:
         if self.status == Client.OPEN:
             return
         update_header = RequestParser.create_update_header(key, compression=compression)
-        self.__send_bytes(str.encode(update_header))
+
+        my_hexdata = "089D8AF50210C9BB9EB685B1C5CB1518E907200132003A027062421208042A0E08CDD0F6DFEFDDE10210B9AED573"
+        data = bytearray.fromhex(my_hexdata)
+        respnseByte = str.encode(update_header)
+        self.__send_bytes(respnseByte)
+        self.write_message(data, True)
         self.status = Client.OPEN
         self.server.on_open(self)
 
@@ -416,7 +430,8 @@ class Client:
                 self.close(1002, "Pong not recieved")
 
     def __send_pong(self):
-        frame = WebSocketFrame(opcode=WebSocketFrame.PONG, max_frame_size=self.server.max_frame_size)
+        frame = WebSocketFrame(opcode=WebSocketFrame.PONG,
+                               max_frame_size=self.server.max_frame_size)
         self.__send_frames(frame.construct())
 
     async def __wait_for_data(self):
@@ -433,7 +448,8 @@ class Client:
                     req.parse_request(data)
                 except Exception as e:
                     raise UnicodeDecodeError(
-                        "Error when decoding upgrade request to unicode ( " + str(e) + " )") from None
+                        "Error when decoding upgrade request to unicode ( " + str(
+                            e) + " )") from None
 
                 try:
                     req.is_valid_request(req.headers)
@@ -446,11 +462,13 @@ class Client:
 
                 except AssertionError as a:
                     self.__close_socket()
-                    raise Exception("Upgrade request does not follow protocol ( " + str(a) + " )") from None
+                    raise Exception(
+                        "Upgrade request does not follow protocol ( " + str(a) + " )") from None
 
             elif self.status == Client.OPEN:
                 try:
-                    messages = self.__frame_reader.read_message(data, compression=self.server.compression)
+                    messages = self.__frame_reader.read_message(data,
+                                                                compression=self.server.compression)
                     for data in messages:
                         self.__process_frame(data[0], data[1])
                 except Exception as e:
@@ -493,7 +511,8 @@ class Client:
     # Call this class to respond to a close connection request
     def __close_conn_res(self):
         if not self._close_sent:
-            frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE, max_frame_size=self.server.max_frame_size)
+            frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE,
+                                   max_frame_size=self.server.max_frame_size)
             self.__send_frames(frame.construct())
             self._close_sent = True
             self.__close_socket()
@@ -504,6 +523,7 @@ class Client:
     def close(self, status, reason):
         # Status and reason not implemented
         if not self._close_sent:
-            frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE, max_frame_size=self.server.max_frame_size)
+            frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE,
+                                   max_frame_size=self.server.max_frame_size)
             self.__send_frames(frame.construct())
             self.__force_close(1)

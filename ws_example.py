@@ -1,3 +1,5 @@
+import time
+
 from simple_ws import WebSocket
 
 
@@ -18,10 +20,12 @@ class WSHandler(WebSocket):
         print("Recieved ping!")
 
     def on_pong(self, client):
-        print("Recieved pong!")
+        cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        print("Recieved pong! time = ", cur_date)
 
 
 host = ''
 port = 8080
 
-ws = WSHandler(host, port, compression=True, ping=True)
+ws = WSHandler(host, port, compression=True, ping=True, ping_interval=5)
+
