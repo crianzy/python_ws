@@ -44,7 +44,8 @@ class WSHandler(WebSocket):
         print("Client left...")
 
     def on_ping(self, client):
-        print("Recieved ping!")
+        cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        print("Recieved ping! time = ", cur_date)
 
     def on_pong(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -54,5 +55,4 @@ class WSHandler(WebSocket):
 host = ''
 port = 8080
 
-ws = WSHandler(host, port, compression=True, ping=False, ping_interval=300)
-
+ws = WSHandler(host, port, compression=True, ping=True, ping_interval=480)
