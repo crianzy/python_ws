@@ -521,27 +521,30 @@ class Client:
             self.__close_socket()
 
     def __force_close(self, timeout):
-        loop.create_task(self.__async_force_close(timeout))
+        pass
+        # loop.create_task(self.__async_force_close(timeout))
 
     # Call this class to respond to a close connection request
     def __close_conn_res(self):
-        if not self._close_sent:
-            frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE,
-                                   max_frame_size=self.server.max_frame_size)
-            self.__send_frames(frame.construct())
-            self._close_sent = True
-            self.__close_socket()
-        else:
-            self.__close_socket()
+        pass
+        # if not self._close_sent:
+        #     frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE,
+        #                            max_frame_size=self.server.max_frame_size)
+        #     self.__send_frames(frame.construct())
+        #     self._close_sent = True
+        #     self.__close_socket()
+        # else:
+        #     self.__close_socket()
 
     # Call class to request closing of connection to client
     def close(self, status, reason):
+        pass
         # Status and reason not implemented
-        if not self._close_sent:
-            frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE,
-                                   max_frame_size=self.server.max_frame_size)
-            self.__send_frames(frame.construct())
-            self.__force_close(1)
+        # if not self._close_sent:
+        #     frame = WebSocketFrame(opcode=WebSocketFrame.CLOSE,
+        #                            max_frame_size=self.server.max_frame_size)
+        #     self.__send_frames(frame.construct())
+        #     self.__force_close(1)
 
 
 def TraceStack():
