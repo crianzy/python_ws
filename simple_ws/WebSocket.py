@@ -78,7 +78,7 @@ class RequestParser:
         header += "Handshake-Msg: OK" + "\r\n"
         header += "Handshake-Status: 0" + "\r\n"
         header += "Sec-Websocket-Protocol: pbbp2" + "\r\n"
-        header += "Handshake-Options: ping-interval=480;" + "\r\n"
+        header += "Handshake-Options: ping-interval=60;" + "\r\n"
         header += "\r\n"
         return header
 
