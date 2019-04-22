@@ -475,13 +475,13 @@ class Client:
                     except Exception as e:
                         # self.close(1002, "Received invalid frame")
                         print(
-                            "Invalid frame received, closing connection (" + str(e) + ") no close ")
+                            "Invalid frame received, closing connection (" + str(e) + ") no close 1")
 
                 else:
                     print("Recieved message from client who was not open or connecting")
 
         except Exception as e:
-            print("Invalid frame received, closing connection (" + str(e) + ")")
+            print("Invalid frame received, closing connection (" + str(e) + ") no close 2")
 
     def __process_frame(self, opcode, message):
         self.__last_frame_received = time.time()
