@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-
+import sys
 import time
+import traceback
 
 from simple_ws import WebSocket
 
@@ -30,6 +31,14 @@ from simple_ws import WebSocket
 #     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
 #     sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPALIVE, interval_sec)
 
+
+def TraceStack():
+    frame = sys._getframe(1)
+    while frame:
+        print(frame.f_code.co_name, frame.f_code.co_filename, frame.f_lineno)
+        frame = frame.f_back
+
+
 class WSHandler(WebSocket):
     def on_message(self, msg, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -41,10 +50,12 @@ class WSHandler(WebSocket):
     def on_open(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         print("Client connected!time = ", cur_date)
+        TraceStack()
 
     def on_close(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         print("Client left...time = ", cur_date)
+        TraceStack()
 
     def on_ping(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
