@@ -56,6 +56,6 @@ class WSHandler(WebSocket):
 
 
 host = ''
-port = 8080
+port = 80
 
 ws = WSHandler(host, port, compression=True, ping=True, ping_interval=480)
