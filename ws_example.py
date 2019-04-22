@@ -44,26 +44,26 @@ class WSHandler(WebSocket):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         for client in self.clients:
             if client.is_open():
-                print("Client on_message!", msg, "  time", cur_date)
+                print("Client on_message!", msg, "  time", cur_date, "client = ", client)
                 # client.write_message(msg)
 
     def on_open(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        print("Client connected!time = ", cur_date)
+        print("Client connected!time = ", cur_date, "client = ", client)
         TraceStack()
 
     def on_close(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        print("Client left...time = ", cur_date)
+        print("Client left...time = ", cur_date, "client = ", client)
         TraceStack()
 
     def on_ping(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        print("Recieved ping! time = ", cur_date)
+        print("Recieved ping! time = ", cur_date, "client = ", client)
 
     def on_pong(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        print("Recieved pong! time = ", cur_date)
+        print("Recieved pong! time = ", cur_date, "client = ", client)
 
 
 host = ''
