@@ -471,12 +471,11 @@ class Client:
 
                 elif self.status == Client.OPEN:
                     try:
-                        messages = self.__frame_reader.read_message(data,
-                                                                    compression=self.server.compression)
+                        messages = self.__frame_reader.read_message(data, compression=self.server.compression)
                         for data in messages:
                             self.__process_frame(data[0], data[1])
                     except Exception as e:
-                        # self.close(1002, "Received invalid frame")
+                        self.close(1002, "Received invalid frame")
                         print(
                             "Invalid frame received, closing connection (" + str(
                                 e) + ") no close 1")
@@ -487,6 +486,7 @@ class Client:
                     TraceStack()
 
         except Exception as e:
+            self.close(1002, "Received invalid frame")
             print("Invalid frame received, closing connection (" + str(e) + ") no close 2")
             TraceStack()
 
