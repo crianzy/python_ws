@@ -32,16 +32,19 @@ from simple_ws import WebSocket
 
 class WSHandler(WebSocket):
     def on_message(self, msg, client):
+        cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         for client in self.clients:
             if client.is_open():
-                print("Client on_message!", msg)
+                print("Client on_message!", msg, "  time", cur_date)
                 # client.write_message(msg)
 
     def on_open(self, client):
-        print("Client connected!")
+        cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        print("Client connected!time = ", cur_date)
 
     def on_close(self, client):
-        print("Client left...")
+        cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        print("Client left...time = ", cur_date)
 
     def on_ping(self, client):
         cur_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
