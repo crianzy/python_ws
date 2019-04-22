@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import base64
 import struct
+import sys
 import time
 import zlib
 
@@ -301,7 +302,7 @@ class FrameReader:
 
 class WebSocket:
     def __init__(self, host, port, ping=True, ping_interval=5, buffer_size=8192,
-                 max_frame_size=8192,
+                 max_frame_size=81920000,
                  max_connections=10, compression=True):
         self.clients = []
         self.host = host
@@ -440,6 +441,7 @@ class Client:
                 data = await self.reader.read(self.buffer_size)
                 if len(data) == 0:
                     print("len(data) == 0")
+                    TraceStack()
                     # self.__close_socket()
                     return
 
@@ -449,9 +451,9 @@ class Client:
                         data = data.decode('utf-8')
                         req.parse_request(data)
                     except Exception as e:
-                        raise UnicodeDecodeError(
-                            "Error when decoding upgrade request to unicode ( " + str(
-                                e) + " )") from None
+                        print(
+                            "Error when decoding upgrade request to unicode ( " + str(e) + " )")
+                        TraceStack()
 
                     try:
                         req.is_valid_request(req.headers)
@@ -465,6 +467,7 @@ class Client:
                     except AssertionError as a:
                         # self.__close_socket()
                         print("Upgrade request does not follow protocol ( " + str(a) + " )")
+                        TraceStack()
 
                 elif self.status == Client.OPEN:
                     try:
@@ -475,13 +478,17 @@ class Client:
                     except Exception as e:
                         # self.close(1002, "Received invalid frame")
                         print(
-                            "Invalid frame received, closing connection (" + str(e) + ") no close 1")
+                            "Invalid frame received, closing connection (" + str(
+                                e) + ") no close 1")
+                        TraceStack()
 
                 else:
                     print("Recieved message from client who was not open or connecting")
+                    TraceStack()
 
         except Exception as e:
             print("Invalid frame received, closing connection (" + str(e) + ") no close 2")
+            TraceStack()
 
     def __process_frame(self, opcode, message):
         self.__last_frame_received = time.time()
@@ -532,3 +539,10 @@ class Client:
                                    max_frame_size=self.server.max_frame_size)
             self.__send_frames(frame.construct())
             self.__force_close(1)
+
+
+def TraceStack():
+    frame = sys._getframe(1)
+    while frame:
+        print(frame.f_code.co_name, frame.f_code.co_filename, frame.f_lineno)
+        frame = frame.f_back
