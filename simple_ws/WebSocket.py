@@ -439,7 +439,7 @@ class Client:
             while self.status != Client.CLOSED:
                 data = await self.reader.read(self.buffer_size)
                 if len(data) == 0:
-                    self.__close_socket()
+                    # self.__close_socket()
                     return
 
                 if self.status == Client.CONNECTING:
@@ -462,7 +462,7 @@ class Client:
                             self.__upgrade(req.headers["Sec-WebSocket-Key"])
 
                     except AssertionError as a:
-                        self.__close_socket()
+                        # self.__close_socket()
                         raise Exception(
                             "Upgrade request does not follow protocol ( " + str(a) + " )") from None
 
@@ -473,8 +473,8 @@ class Client:
                         for data in messages:
                             self.__process_frame(data[0], data[1])
                     except Exception as e:
-                        self.close(1002, "Received invalid frame")
-                        print(
+                        # self.close(1002, "Received invalid frame")
+                        raise Exception(
                             "Invalid frame received, closing connection (" + str(e) + ")")
 
                 else:
