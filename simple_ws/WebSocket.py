@@ -439,6 +439,7 @@ class Client:
             while self.status != Client.CLOSED:
                 data = await self.reader.read(self.buffer_size)
                 if len(data) == 0:
+                    print("len(data) == 0")
                     # self.__close_socket()
                     return
 
@@ -463,8 +464,7 @@ class Client:
 
                     except AssertionError as a:
                         # self.__close_socket()
-                        raise Exception(
-                            "Upgrade request does not follow protocol ( " + str(a) + " )") from None
+                        print("Upgrade request does not follow protocol ( " + str(a) + " )")
 
                 elif self.status == Client.OPEN:
                     try:
@@ -474,14 +474,14 @@ class Client:
                             self.__process_frame(data[0], data[1])
                     except Exception as e:
                         # self.close(1002, "Received invalid frame")
-                        raise Exception(
-                            "Invalid frame received, closing connection (" + str(e) + ")")
+                        print(
+                            "Invalid frame received, closing connection (" + str(e) + ") no close ")
 
                 else:
                     print("Recieved message from client who was not open or connecting")
 
         except Exception as e:
-            print ("Invalid frame received, closing connection (" + str(e) + ")")
+            print("Invalid frame received, closing connection (" + str(e) + ")")
 
     def __process_frame(self, opcode, message):
         self.__last_frame_received = time.time()
