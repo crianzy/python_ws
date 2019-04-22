@@ -69,4 +69,4 @@ class WSHandler(WebSocket):
 host = ''
 port = 80
 
-ws = WSHandler(host, port, compression=True, ping=True, ping_interval=10)
+ws = WSHandler(host, port, compression=True, ping=True, ping_interval=300)
