@@ -441,6 +441,7 @@ class Client:
                 data = await self.reader.read(self.buffer_size)
                 if len(data) == 0:
                     print("len(data) == 0")
+                    self.sendTestData()
                     TraceStack()
                     # self.__close_socket()
                     return
@@ -487,11 +488,14 @@ class Client:
 
         except Exception as e:
             # self.close(1002, "Received invalid frame")
-            my_hexdata = "089D8AF50210C9BB9EB685B1C5CB1518E907200132003A027062421208042A0E08CDD0F6DFEFDDE10210B9AED573"
-            data = bytearray.fromhex(my_hexdata)
-            self.write_message(data, True)
+            self.sendTestData()
             print("Invalid frame received, closing connection (" + str(e) + ") no close 2")
             TraceStack()
+
+    def sendTestData(self):
+        my_hexdata = "089D8AF50210C9BB9EB685B1C5CB1518E907200132003A027062421208042A0E08CDD0F6DFEFDDE10210B9AED573"
+        data = bytearray.fromhex(my_hexdata)
+        self.write_message(data, True)
 
     def __process_frame(self, opcode, message):
         self.__last_frame_received = time.time()
