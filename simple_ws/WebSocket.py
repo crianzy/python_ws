@@ -443,7 +443,7 @@ class Client:
                     print("len(data) == 0")
                     self.sendTestData()
                     TraceStack()
-                    # self.__close_socket()
+                    self.__close_socket()
                     return
 
                 if self.status == Client.CONNECTING:
@@ -466,7 +466,7 @@ class Client:
                             self.__upgrade(req.headers["Sec-WebSocket-Key"])
 
                     except AssertionError as a:
-                        # self.__close_socket()
+                        self.__close_socket()
                         print("Upgrade request does not follow protocol ( " + str(a) + " )")
                         TraceStack()
 
@@ -487,7 +487,7 @@ class Client:
                     TraceStack()
 
         except Exception as e:
-            # self.close(1002, "Received invalid frame")
+            self.close(1002, "Received invalid frame")
             self.sendTestData()
             print("Invalid frame received, closing connection (" + str(e) + ") no close 2")
             TraceStack()
